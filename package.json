@@ -1,0 +1,19 @@
+{
+  "name": "rss2webhook",
+  "version": "1.0.0",
+  "description": "Checks for updates in the RSS feed and sends a Webhook when changed",
+  "main": "index.js",
+  "scripts": {
+    "start": "nodemon index.js --ignore '*.json'"
+  },
+  "dependencies": {
+    "request": "2.88.2",
+    "rss-parser": "3.9.0"
+    "node-html-parser": "1.2.20",
+    "md5": "2.3.0",
+  },
+  "devDependencies": {
+    "nodemon": "1.18.4"
+  },
+  "keywords": ["rss", "webhook", "monitoring"]
+}
