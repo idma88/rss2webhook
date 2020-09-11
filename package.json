@@ -4,7 +4,7 @@
   "description": "Checks for updates in the RSS feed and sends a Webhook when changed",
   "main": "index.js",
   "scripts": {
-    "start": "nodemon index.js --ignore '*.json'"
+    "start": "nodemon index.js --ignore 'feeds.json' --ignore 'hashes.json'"
   },
   "dependencies": {
     "request": "2.88.2",
@@ -15,5 +15,16 @@
   "devDependencies": {
     "nodemon": "1.18.4"
   },
-  "keywords": ["rss", "webhook", "monitoring"]
+  "keywords": [
+    "rss",
+    "webhook",
+    "monitoring"
+  ],
+  "author": "Dmitrii Ivanov <idma88@gmail.com>",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/idma88/rss2webhook.git"
+  },
+  "bugs": "https://github.com/idma88/rss2webhook/issues",
+  "license": "GNU General Public License v3.0"
 }
