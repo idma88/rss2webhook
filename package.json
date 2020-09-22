@@ -1,16 +1,17 @@
 {
   "name": "rss2webhook",
-  "version": "1.0.0",
-  "description": "Checks for updates in the RSS feed and sends a Webhook when changed",
+  "version": "2.0.0",
+  "description": "Checks for updates in the RSS feed and sends a Discord Webhook when changed",
   "main": "index.js",
   "scripts": {
-    "start": "nodemon index.js --ignore 'feeds.json' --ignore 'hashes.json'"
+    "start": "nodemon index.js --ignore 'feeds.json' --ignore 'hashes.json' --ignore 'hooks.json'"
   },
   "dependencies": {
-    "request": "2.88.2",
-    "rss-parser": "3.9.0"
-    "node-html-parser": "1.2.20",
+    "discord.js": "11.5.1",
+    "dotenv": "8.2.0",
     "md5": "2.3.0",
+    "node-html-parser": "1.2.20",
+    "rss-parser": "3.9.0"
   },
   "devDependencies": {
     "nodemon": "1.18.4"

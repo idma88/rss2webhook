@@ -1,0 +1,44 @@
+[
+    {
+        "url": "http://feeds.feedburner.com/ScsSoftwaresBlog",
+        "avatarUrl": "https://cdn.discordapp.com/avatars/581007337683288075/ecd1e1f6a9ccd2f13019f8e4e8313ffb.png",
+        "username": "SCS Software Blog",
+        "template": {
+            "content": "В блоге __SCS Software__ новая запись: **{{EntryTitle}}**",
+            "embeds": [
+                {
+                    "title": "Читать запись в блоге",
+                    "url": "{{EntryUrl}}",
+                    "image": "{{EntryImageUrl}}"
+                }
+            ]
+        },
+        "destinations": [
+            {
+                "guildId": "000000000000000000",
+                "channelId": "000000000000000000"
+            }
+        ]
+    },
+    {
+        "url": "https://truckersmp.com/blog/rss",
+        "avatarUrl": "https://cdn.discordapp.com/avatars/699291845506629663/99604231380a7a417a3e3fdb420d2c42.png",
+        "username": "TruckersMP Blog",
+        "template": {
+            "content": "В блоге __TruckersMP__ новая запись: **{{EntryTitle}}**",
+            "embeds": [
+                {
+                    "title": "Читать запись в блоге",
+                    "url": "{{EntryUrl}}",
+                    "image": "{{EntryImageUrl}}"
+                }
+            ]
+        },
+        "destinations": [
+            {
+                "guildId": "000000000000000000",
+                "channelId": "000000000000000000"
+            }
+        ]
+    }
+]

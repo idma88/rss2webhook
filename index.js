@@ -1,109 +1,47 @@
-const fs = require("fs");
-const request = require("request");
-const rssParser = new (require("rss-parser"))();
-const htmlParser = require("node-html-parser");
-const md5 = require("md5");
+require('dotenv').config()
+const DISCORD_TOKEN  = process.env.DISCORD_TOKEN;
+const UPDATE_TIMEOUT = process.env.RSS_UPDATE_TIMEOUT || 60 * 1000;
+const RSS_DEBUG      = process.env.RSS_DEBUG.toLowerCase() === 'true';
 
-const feedsFilename = "feeds.json";
-const hashesFilename = "hashes.json";
-const UpdateTimeout = process.env.RSS_UPDATE_TIMEOUT || 60 * 1000;
-
-function LoadFeeds() {
-    return JSON.parse(fs.readFileSync(feedsFilename, "utf8"));
-}
-
-function LoadHashes() {
-    try {
-        return JSON.parse(fs.readFileSync(hashesFilename, "utf8")) || {};
-    } catch (error) {
-        return {};
-    }
-}
-
-function SaveHashes(hashes) {
-    return fs.writeFileSync(hashesFilename, JSON.stringify(hashes), "utf8");
-}
-
-async function GetLastEntry(feedItem) {
-    let feed = await rssParser.parseURL(feedItem.url);
-
-    let lastEntry = feed.items.reduce((acc, current) => {
-        let curDate = Date.parse(current.pubDate);
-        return curDate > acc ? curDate : acc;
-    }, feed.items[0]);
-
-    let entryTitle = lastEntry.title || "";
-    let entryUrl = lastEntry.link || "";
-    let entryAuthor = lastEntry.creator | "";
-    let entryContent = lastEntry.content | "";
-    let entryPublished = lastEntry.pubDate | "";
-
-    let entryImageUrl;
-    try {
-        entryImageUrl = lastEntry.enclosure.url;
-    } catch (error) { }
-
-    if (!entryImageUrl) {
-        try {
-            entryImageUrl = htmlParser
-                .parse(lastEntry.content)
-                .querySelector("img")
-                .getAttribute("src");
-        } catch (error) {
-            entryImageUrl = "";
-        }
-    }
-
-    return {
-        EntryTitle: entryTitle,
-        EntryUrl: entryUrl,
-        EntryAuthor: entryAuthor,
-        EntryContent: entryContent,
-        EntryPublished: entryPublished,
-        EntryImageUrl: entryImageUrl
-    };
-}
-
-async function SendWebhook(webhookOptions, Entry) {
-    let webhookBody = webhookOptions.template;
-
-    for (const key in Entry) {
-        if (Entry.hasOwnProperty(key))
-            webhookBody = webhookBody.replace("{{" + key + "}}", Entry[key]);
-    }
-
-    request.post({
-        headers: { "content-type": "application/json" },
-        url: webhookOptions.url,
-        body: webhookBody
-    });
-}
+const Discord     = require("discord.js");
+const Client      = new Discord.Client();
+const MD5         = require("md5");
+const Webhook     = require("./src/webhook")(Client);
+const FeedStorage = require("./src/storage")();
 
 async function ProcessAllFeeds(feeds, hashes) {
+    if (RSS_DEBUG) console.info('ProcessAllFeeds');
+    
     for (let index = 0; index < feeds.length; index++) {
         let feedItem = feeds[index];
-        let entry = await GetLastEntry(feedItem);
+        let entry = await FeedStorage.GetLastEntry(feedItem);
 
-        let feedHash = md5(feedItem.url);
+        let feedHash = MD5(feedItem.url);
         let entryHash = entry.EntryUrl;
 
-        if (hashes[feedHash] !== entryHash) {
-            SendWebhook(feedItem.webhook, entry);
+        if (/*RSS_DEBUG ||*/ hashes[feedHash] !== entryHash) {
+            Webhook.Send(feedHash, feedItem.destinations, feedItem.template, entry);
             hashes[feedHash] = entryHash;
         }
     }
 
-    SaveHashes(hashes);
+    FeedStorage.Hashes = hashes;
 }
 
-// Entry point
-(async () => {
-    let feeds = LoadFeeds();
-    let hashes = LoadHashes();
 
+Client.login(DISCORD_TOKEN);
+
+Client.on("ready", async () => {
+    console.log("----------------------------------------------------");
+    console.log("I'm online.");
+
+    let feeds = FeedStorage.Feeds;
+    let hashes = FeedStorage.Hashes;
+
+    await Webhook.Init(feeds);
     await ProcessAllFeeds(feeds, hashes); // Force first check
     let timerId = setInterval(
         async () => await ProcessAllFeeds(feeds, hashes),
-        UpdateTimeout
+        UPDATE_TIMEOUT
     );
-})();
+});
