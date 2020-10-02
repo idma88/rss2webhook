@@ -22,3 +22,10 @@ package-lock.json
 # dotenv environment variables file
 .env
 .env.test
+
+
+# Cache
+cache/*.json
+
+# Config
+config/feeds.json
