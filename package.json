@@ -4,10 +4,14 @@
   "description": "Checks for updates in the RSS feed and sends a Discord Webhook when changed",
   "main": "index.js",
   "scripts": {
-    "start": "nodemon index.js --ignore 'feeds.json' --ignore 'hashes.json' --ignore 'hooks.json'"
+    "start": "nodemon index.js --ignore 'feeds.json' --ignore 'cache/hashes.json' --ignore 'cache/hooks.json'"
+  },
+  "engines": {
+    "node": ">= 12.0.0"
   },
   "dependencies": {
-    "discord.js": "11.5.1",
+    "axios": "^0.20.0",
+    "discord.js": "^12.3.1",
     "dotenv": "8.2.0",
     "md5": "2.3.0",
     "node-html-parser": "1.2.20",

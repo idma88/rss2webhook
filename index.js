@@ -1,7 +1,7 @@
 require('dotenv').config()
 const DISCORD_TOKEN  = process.env.DISCORD_TOKEN;
 const UPDATE_TIMEOUT = process.env.RSS_UPDATE_TIMEOUT || 60 * 1000;
-const RSS_DEBUG      = process.env.RSS_DEBUG.toLowerCase() === 'true';
+const RSS_DEBUG      = (process.env.RSS_DEBUG || 'false').toLowerCase() === 'true';
 
 const Discord     = require("discord.js");
 const Client      = new Discord.Client();

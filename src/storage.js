@@ -1,4 +1,4 @@
-const RSS_DEBUG = process.env.RSS_DEBUG.toLowerCase() === 'true';
+const RSS_DEBUG = (process.env.RSS_DEBUG || 'false').toLowerCase() === 'true';
 
 const FS = require("fs");
 const PATH = require("path");

@@ -1,9 +1,10 @@
-const RSS_DEBUG = process.env.RSS_DEBUG.toLowerCase() === 'true';
+const RSS_DEBUG = (process.env.RSS_DEBUG || 'false').toLowerCase() === 'true';
 
 const FS = require("fs");
 const PATH = require("path");
 const MD5 = require("md5");
 const Discord = require("discord.js");
+const Axios = require('axios');
 
 const hooksFilename = PATH.join(process.cwd(), "cache/hooks.json");
 
@@ -65,8 +66,9 @@ class Webhook {
         let hook = await this.Get(guildId, channelId, feedId);
 
         if (!hook) {
-            let channel = this.__GetChannel(guildId, channelId)
-            let webhook = await channel.createWebhook(username, avatarUrl);
+            let channel = this.__GetChannel(guildId, channelId);
+            let options = { avatar: avatarUrl };
+            let webhook = await channel.createWebhook(username, options);
 
             if (webhook) {
                 let hookHash = `${feedId}@${guildId}/${channelId}`;
@@ -121,7 +123,6 @@ class Webhook {
         for (let index = 0; index < destinations.length; index++) {
             const destItem = destinations[index];
 
-
             let webhook = await this.Get(destItem.guildId, destItem.channelId, feedId);
 
             if (!webhook) {
@@ -132,7 +133,18 @@ class Webhook {
             let content = webhookBody.content || "";
             delete webhookBody.content;
 
-            webhook.send(content, webhookBody);
+            let postedMessage = await webhook.send(content, webhookBody);
+
+            if (postedMessage.channel.type === 'news') {
+                // TODO Поддержка метода crosspost ожидается в ближайших версиях discord.js (> 12.3.1)
+                //postedMessage.crosspost().catch(console.error);
+
+                Axios({
+                    method: 'post',
+                    url: `https://discord.com/api/channels/${postedMessage.channel.id}/messages/${postedMessage.id}/crosspost`,
+                    headers: {'Authorization': `Bot ${this.client.token}`}
+                }).catch(console.error);
+            }
 
             await sleep(1000);
         }
@@ -144,18 +156,18 @@ class Webhook {
         if (!guildId) return false;
         if (!channelId) return false;
 
-        let guild = this.client.guilds.find(guild => guild.id === guildId);
+        let guild = this.client.guilds.cache.find(guild => guild.id === guildId);
         if (!guild) {
             console.error(`The specified guild (${guildId}) was not found`);
             return false;
         }
 
-        return guild.channels.find(channel => channel.id === channelId);
+        return guild.channels.cache.find(channel => channel.id === channelId);
     }
 
     __ProcessPlaceholders(text, entry) {
         if (RSS_DEBUG) console.info('Webhook.__ProcessPlaceholders');
-        console.info(text);
+        if (RSS_DEBUG) console.info(text);
 
         for (const key in entry) {
             if (entry.hasOwnProperty(key)) text = text.replace("{{" + key + "}}", entry[key]);
@@ -180,7 +192,7 @@ class Webhook {
                     if (index >= 10) return undefined;
 
                     let isEmpty = true;
-                    let richEmbed = new Discord.RichEmbed();
+                    let richEmbed = new Discord.MessageEmbed();
 
                     const props = ['author', 'color', 'description', 'footer', 'image', 'thumbnail', 'timestamp', 'title', 'url'];
                     props.forEach(prop => {
