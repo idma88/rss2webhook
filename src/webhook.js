@@ -6,7 +6,7 @@ const MD5 = require("md5");
 const Discord = require("discord.js");
 const Axios = require('axios');
 
-const hooksFilename = PATH.join(process.cwd(), "cache/hooks.json");
+const hooksFilename = PATH.resolve(__dirname, "../cache/hooks.json");
 
 function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
@@ -142,7 +142,7 @@ class Webhook {
                 Axios({
                     method: 'post',
                     url: `https://discord.com/api/channels/${postedMessage.channel.id}/messages/${postedMessage.id}/crosspost`,
-                    headers: {'Authorization': `Bot ${this.client.token}`}
+                    headers: { 'Authorization': `Bot ${this.client.token}` }
                 }).catch(console.error);
             }
 

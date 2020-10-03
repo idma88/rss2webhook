@@ -1,6 +1,6 @@
 {
   "name": "rss2webhook",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "description": "Checks for updates in the RSS feed and sends a Discord Webhook when changed",
   "main": "index.js",
   "scripts": {

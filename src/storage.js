@@ -5,8 +5,8 @@ const PATH = require("path");
 const rssParser = new (require("rss-parser"))();
 const htmlParser = require("node-html-parser");
 
-const feedsFilename = PATH.join(process.cwd(), "config/feeds.json");
-const hashesFilename = PATH.join(process.cwd(), "cache/hashes.json");
+const feedsFilename = PATH.resolve(__dirname, "../config/feeds.json");
+const hashesFilename = PATH.resolve(__dirname, "../cache/hashes.json");
 
 class FeedStorage {
     constructor() {
